@@ -1,0 +1,19 @@
+{
+  "Port": 8080,
+  "Postgres": {
+    "Host": "0.0.0.0",
+    "Port": 5432,
+    "User": "postgres",
+    "Password": "admin",
+    "Database": "postgres",
+    "SSLMode": "disable",
+    "MaxIdleConns": 10,
+    "MaxOpenConns": 100
+  },
+  "Redis": {
+    "Host": "0.0.0.0",
+    "Post": 6379,
+    "Password": "default",
+    "DB": 1
+  }
+}
