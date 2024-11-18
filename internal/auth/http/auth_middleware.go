@@ -20,10 +20,10 @@ func (mw *AuthMW) AuthedMiddleware() fiber.Handler {
 		userAgent := c.Get("User-Agent")
 		fingerprint := c.Get("Fingerprint")
 
-		if len(sessionKey) == 0 || len(fingerprint) == 0 || len(userAgent) == 0 {
-			slog.Error("session key or fingerprint or user-agent is nil")
-			return c.SendStatus(fiber.StatusUnauthorized)
-		}
+		//if len(sessionKey) == 0 || len(fingerprint) == 0 || len(userAgent) == 0 {
+		//	slog.Error("session key or fingerprint or user-agent is nil")
+		//	return c.SendStatus(fiber.StatusUnauthorized)
+		//}
 
 		err := mw.authService.ValidateSessionKey(c.UserContext(), userAgent, fingerprint, sessionKey)
 		if err != nil {

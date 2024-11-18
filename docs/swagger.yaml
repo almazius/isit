@@ -1,10 +1,20 @@
 definitions:
+  models.AuthParams:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+    - login
+    - password
+    type: object
   models.Material:
     properties:
       address:
         type: string
       count:
-        type: integer
+        type: number
       description:
         type: string
       id:
@@ -12,14 +22,12 @@ definitions:
       name:
         type: string
       price:
-        type: integer
+        type: number
       reject_percent:
         type: number
     required:
     - count
     - name
-    - price
-    - reject_percent
     type: object
   models.MaterialSmallInfo:
     properties:
@@ -39,6 +47,8 @@ definitions:
     properties:
       description:
         type: string
+      id:
+        type: integer
       materials:
         items:
           $ref: '#/definitions/models.MaterialSmallInfo'
@@ -46,9 +56,25 @@ definitions:
       name:
         type: string
       price:
-        type: integer
+        type: number
       reject_percent:
         type: number
+    type: object
+  models.RegisterParams:
+    properties:
+      login:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      surname:
+        type: string
+    required:
+    - login
+    - name
+    - password
+    - surname
     type: object
   models.UpdateOrder:
     properties:
@@ -87,7 +113,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/models.Product'
+          $ref: '#/definitions/models.Material'
       produces:
       - application/json
       responses:
@@ -116,6 +142,20 @@ paths:
       security:
       - AuthToken: []
       summary: Добавление материала
+      tags:
+      - File
+  /api/material/csv:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
       tags:
       - File
   /api/order:
@@ -151,6 +191,20 @@ paths:
       security:
       - AuthToken: []
       summary: Добавление заявки
+      tags:
+      - File
+  /api/order/csv:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
       tags:
       - File
   /api/order/status:
@@ -208,6 +262,62 @@ paths:
       summary: Добавление продукта
       tags:
       - File
+  /api/product/csv:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
+      tags:
+      - File
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: "1"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.AuthParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Авторизация
+      tags:
+      - Авторизация
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: "1"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Регистрация
+      tags:
+      - Авторизация
 securityDefinitions:
   AuthToken:
     description: autorization token from auth_service

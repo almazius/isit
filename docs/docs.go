@@ -97,10 +97,34 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
+                            "$ref": "#/definitions/models.Material"
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "http.StatusOK"
+                    }
+                }
+            }
+        },
+        "/api/material/csv": {
+            "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Ручка",
                 "responses": {
                     "200": {
                         "description": "http.StatusOK"
@@ -160,6 +184,30 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "http.StatusOK"
+                    }
+                }
+            }
+        },
+        "/api/order/csv": {
+            "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Ручка",
                 "responses": {
                     "200": {
                         "description": "http.StatusOK"
@@ -258,23 +306,130 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/product/csv": {
+            "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Ручка",
+                "responses": {
+                    "200": {
+                        "description": "http.StatusOK"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Авторизация"
+                ],
+                "summary": "Авторизация",
+                "parameters": [
+                    {
+                        "description": "1",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AuthParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "http.StatusOK"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Авторизация"
+                ],
+                "summary": "Регистрация",
+                "parameters": [
+                    {
+                        "description": "1",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "http.StatusOK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.AuthParams": {
+            "type": "object",
+            "required": [
+                "login",
+                "password"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Material": {
             "type": "object",
             "required": [
                 "count",
-                "name",
-                "price",
-                "reject_percent"
+                "name"
             ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
                 "count": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "description": {
                     "type": "string"
@@ -286,7 +441,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "reject_percent": {
                     "type": "number"
@@ -321,6 +476,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "materials": {
                     "type": "array",
                     "items": {
@@ -331,10 +489,33 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "reject_percent": {
                     "type": "number"
+                }
+            }
+        },
+        "models.RegisterParams": {
+            "type": "object",
+            "required": [
+                "login",
+                "name",
+                "password",
+                "surname"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
                 }
             }
         },

@@ -16,6 +16,14 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandel {
 	return &AuthHandel{authService: authService}
 }
 
+// @Summary 	Регистрация
+// @Security	AuthToken
+// @Tags 		Авторизация
+// @Accept		json
+// @Produce		json
+// @Param 		body 	body 	models.RegisterParams true "1"
+// @Success	200			"http.StatusOK"
+// @Router /auth/register [post]
 func (h *AuthHandel) Register() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var params models.RegisterParams
@@ -35,6 +43,14 @@ func (h *AuthHandel) Register() fiber.Handler {
 	}
 }
 
+// @Summary 	Авторизация
+// @Security	AuthToken
+// @Tags 		Авторизация
+// @Accept		json
+// @Produce		json
+// @Param 		body 	body 	models.AuthParams true "1"
+// @Success	200			"http.StatusOK"
+// @Router /auth/login [post]
 func (h *AuthHandel) Auth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var params models.AuthParams
@@ -47,10 +63,10 @@ func (h *AuthHandel) Auth() fiber.Handler {
 
 		userAgent := c.Get("User-Agent")
 		fingerPrint := c.Get("Fingerprint")
-		if userAgent == "" || fingerPrint == "" {
-			slog.Error("user-agent of fingerprint is null")
-			return c.SendStatus(fiber.StatusBadRequest)
-		}
+		//if userAgent == "" || fingerPrint == "" {
+		//	slog.Error("user-agent of fingerprint is null")
+		//	return c.SendStatus(fiber.StatusBadRequest)
+		//}
 
 		sessionKey, err := h.authService.SingIn(c.UserContext(), &params, userAgent, fingerPrint)
 		if err != nil {

@@ -1,13 +1,17 @@
 package http
 
 import (
+	"encoding/csv"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"isit/internal/auth/http"
 	"isit/internal/service/models"
 	"isit/pkg/validator"
 	"log/slog"
+	"os"
 )
 
 type Service interface{}
@@ -28,6 +32,8 @@ func (h *ServiceHandler) InitRoute(mw *http.AuthMW) {
 	api := h.app.Group("/api")
 	api.Get("/material", h.GetMaterials())
 	api.Get("/product", h.GetProducts())
+	api.Get("/material/csv", h.GetMaterialsCSV())
+	api.Get("/product/csv", h.GetProductsCSV())
 	api.Post("/material", h.AddMaterial())
 	api.Post("/product", h.AddProduct())
 	api.Patch("/material", h.UpdateMaterial())
@@ -35,6 +41,8 @@ func (h *ServiceHandler) InitRoute(mw *http.AuthMW) {
 	order := api.Group("/order")
 	order.Post("/", h.AddOrder())
 	order.Get("/", h.GetOrders())
+	order.Get("/csv", h.GetOrdersCSV())
+
 	order.Patch("/status", h.UpdateStatus())
 
 }
@@ -178,6 +186,7 @@ func (h *ServiceHandler) AddOrder() fiber.Handler {
 INSERT INTO orders.order
 (product_id, count, status)
 VALUES ($1, $2, $3)
+RETURNING id
 `
 		var result int
 
@@ -346,6 +355,66 @@ p.reject_percent
 // @Accept		json
 // @Produce		json
 // @Success	200			"http.StatusOK"
+// @Router /api/product/csv [get]
+func (h *ServiceHandler) GetProductsCSV() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		query := `
+Select  p.id,
+p.name,
+p.description,
+p.price,
+p.reject_percent
+    from products.product p
+`
+		result := make([]models.Product, 0)
+
+		err := h.repo.SelectContext(c.Context(), &result, query)
+		if err != nil {
+			slog.Error("failed update order", "error", err)
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"message": "internal server error",
+				"error":   err.Error(),
+			})
+		}
+
+		for i := range result {
+			result[i].Materials = make([]models.MaterialSmallInfo, 0)
+			query = `select m.material_id AS id, m.count AS count from products.material m where m.product_id = $1`
+			err = h.repo.SelectContext(c.Context(), &result[i].Materials, query, result[i].Id)
+			if err != nil {
+				slog.Error("failed get orders", "error", err)
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"message": "internal server error",
+					"error":   err.Error(),
+				})
+			}
+		}
+
+		fileName := uuid.New().String()
+		file, _ := os.Create(fileName)
+		defer os.Remove(fileName)
+		cFile := csv.NewWriter(file)
+		cFile.Write([]string{"ID продукта", "Название", "Цена", "Описание", "Процент брака"})
+
+		for _, el := range result {
+			cFile.Write([]string{fmt.Sprintf("%v", el.Id), fmt.Sprintf("%v", el.Name), fmt.Sprintf("%v", el.Price),
+				fmt.Sprintf("%v", el.Description), fmt.Sprintf("%v", el.RejectPercent),
+			})
+		}
+		cFile.Flush()
+
+		return c.Download(fileName, "products.csv")
+	}
+}
+
+// @Summary 	Ручка
+// @Security	AuthToken
+// @Tags 		File
+// @Accept		json
+// @Produce		json
+// @Success	200			"http.StatusOK"
 // @Router /api/material [get]
 func (h *ServiceHandler) GetMaterials() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -382,6 +451,55 @@ count
 // @Accept		json
 // @Produce		json
 // @Success	200			"http.StatusOK"
+// @Router /api/material/csv [get]
+func (h *ServiceHandler) GetMaterialsCSV() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		query := `
+Select  id,
+name,
+price,
+description,
+address,
+reject_percent,
+count
+    from materials.material
+`
+		result := make([]models.Material, 0)
+
+		err := h.repo.SelectContext(c.Context(), &result, query)
+		if err != nil {
+			slog.Error("failed update order", "error", err)
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"message": "internal server error",
+				"error":   err.Error(),
+			})
+		}
+
+		fileName := uuid.New().String()
+		file, _ := os.Create(fileName)
+		defer os.Remove(fileName)
+		cFile := csv.NewWriter(file)
+		cFile.Write([]string{"ID материала", "Название", "Цена", "Описание", "Адрес", "Процент брака", "Количество"})
+
+		for _, el := range result {
+			cFile.Write([]string{fmt.Sprintf("%v", el.Id), fmt.Sprintf("%v", el.Name), fmt.Sprintf("%v", el.Price),
+				fmt.Sprintf("%v", el.Description), fmt.Sprintf("%v", el.Address), fmt.Sprintf("%v", el.RejectPercent),
+				fmt.Sprintf("%v", el.Count)})
+		}
+		cFile.Flush()
+
+		return c.Download(fileName, "materials.csv")
+	}
+}
+
+// @Summary 	Ручка
+// @Security	AuthToken
+// @Tags 		File
+// @Accept		json
+// @Produce		json
+// @Success	200			"http.StatusOK"
 // @Router /api/order [get]
 func (h *ServiceHandler) GetOrders() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -405,5 +523,47 @@ status
 		}
 
 		return c.JSON(result)
+	}
+}
+
+// @Summary 	Ручка
+// @Security	AuthToken
+// @Tags 		File
+// @Accept		json
+// @Produce		json
+// @Success	200			"http.StatusOK"
+// @Router /api/order/csv [get]
+func (h *ServiceHandler) GetOrdersCSV() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		query := `
+Select  id,
+product_id,
+count,
+status
+    from orders.order
+`
+		result := make([]models.GetOrder, 0)
+
+		err := h.repo.SelectContext(c.Context(), &result, query)
+		if err != nil {
+			slog.Error("failed get order", "error", err)
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"message": "internal server error",
+				"error":   err.Error(),
+			})
+		}
+		fileName := uuid.New().String()
+		file, _ := os.Create(fileName)
+		defer os.Remove(fileName)
+		cFile := csv.NewWriter(file)
+		cFile.Write([]string{"ID продукта", "Количество", "Статус заказа"})
+
+		for _, el := range result {
+			cFile.Write([]string{fmt.Sprintf("%v", el.ProductId), fmt.Sprintf("%v", el.Count), fmt.Sprintf("%v", el.Status)})
+		}
+		cFile.Flush()
+
+		return c.Download(fileName, "orders.csv")
 	}
 }

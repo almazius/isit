@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	"isit/config"
 	"log/slog"
 	"time"
 )
@@ -25,7 +24,7 @@ func (c *AuthCache) CreateNewSession(ctx context.Context, fingerPrint, userAgent
 	err := c.rdb.Set(ctx,
 		genKeyPrefixForSession(fingerPrint, userAgent),
 		sessionKey,
-		time.Duration(config.C().TTLSession)*time.Hour).Err()
+		1*time.Hour).Err()
 	if err != nil {
 		slog.Error("failed set session to cache", "error", err)
 		return err
