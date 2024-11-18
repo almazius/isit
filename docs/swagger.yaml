@@ -1,0 +1,217 @@
+definitions:
+  models.Material:
+    properties:
+      address:
+        type: string
+      count:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+      reject_percent:
+        type: number
+    required:
+    - count
+    - name
+    - price
+    - reject_percent
+    type: object
+  models.MaterialSmallInfo:
+    properties:
+      count:
+        type: number
+      id:
+        type: integer
+    type: object
+  models.Order:
+    properties:
+      count:
+        type: number
+      product_id:
+        type: integer
+    type: object
+  models.Product:
+    properties:
+      description:
+        type: string
+      materials:
+        items:
+          $ref: '#/definitions/models.MaterialSmallInfo'
+        type: array
+      name:
+        type: string
+      price:
+        type: integer
+      reject_percent:
+        type: number
+    type: object
+  models.UpdateOrder:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+info:
+  contact:
+    name: Docs developer
+    url: https://t.me/sigy922
+  title: Бэкенд Сервиса
+  version: 0.0.02
+paths:
+  /api/material:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
+      tags:
+      - File
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: "52"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Обновелние материала
+      tags:
+      - File
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: "52"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Material'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Добавление материала
+      tags:
+      - File
+  /api/order:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
+      tags:
+      - File
+  /api/order/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: "52"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Добавление заявки
+      tags:
+      - File
+  /api/order/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: "52"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Обновелние материала
+      tags:
+      - File
+  /api/product:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Ручка
+      tags:
+      - File
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: "52"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: http.StatusOK
+      security:
+      - AuthToken: []
+      summary: Добавление продукта
+      tags:
+      - File
+securityDefinitions:
+  AuthToken:
+    description: autorization token from auth_service
+    in: header
+    name: sessionid
+    type: apiKey
+swagger: "2.0"
