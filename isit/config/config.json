@@ -3,8 +3,8 @@
   "Postgres": {
     "Host": "0.0.0.0",
     "Port": 5432,
-    "User": "postgres",
-    "Password": "admin",
+    "User": "user",
+    "Password": "user",
     "Database": "postgres",
     "SSLMode": "disable",
     "MaxIdleConns": 10,

@@ -18,6 +18,7 @@ type ServiceHandler struct {
 func NewServiceHandler(app *fiber.App, repo *sqlx.DB) *ServiceHandler {
 	return &ServiceHandler{
 		repo: repo,
+		app:  app,
 	}
 }
 

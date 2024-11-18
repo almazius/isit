@@ -11,6 +11,4 @@ func ServiceRoute(app fiber.Router, mw *http.AuthMW, handler interface{}) {
 			return c.SendString("Hello world!")
 		}
 	}())
-
-	app.Post("/add-material")
 }
